@@ -9,19 +9,17 @@ from requests_futures.sessions import FuturesSession
 
 session = FuturesSession()
 
+URL_BASE =  'https://logs-01.loggly.com/inputs/{token}/tag/{tag}'
 
 def bg_cb(sess, resp):
     """ Don't do anything with the response """
     pass
 
 
-class HTTPSHandler(logging.Handler):
-    def __init__(self, url, fqdn=False, localname=None, facility=None):
+class LogglyHTTPSHandler(logging.Handler):
+    def __init__(self, token, tag):
         logging.Handler.__init__(self)
-        self.url = url
-        self.fqdn = fqdn
-        self.localname = localname
-        self.facility = facility
+        self.url = URL_BASE.format(**locals())
 
     def get_full_message(self, record):
         if record.exc_info:
