@@ -7,6 +7,8 @@ import traceback
 
 from requests_futures.sessions import FuturesSession
 
+from twyla.logging.formatters import LogglyJSONFormatter
+
 session = FuturesSession()
 
 URL_BASE =  'https://logs-01.loggly.com/inputs/{token}/tag/{tag}'
@@ -17,28 +19,15 @@ def bg_cb(sess, resp):
 
 
 class LogglyHTTPSHandler(logging.Handler):
-    def __init__(self, token, tag):
+
+    def __init__(self, token, tag, formatter=None):
         logging.Handler.__init__(self)
         self.url = URL_BASE.format(**locals())
+        self.formatter = formatter or LogglyJSONFormatter()
 
-    def get_full_message(self, record):
-        if record.exc_info:
-            return '\n'.join(traceback.format_exception(*record.exc_info))
-        return record.getMessage()
 
     def emit(self, record):
-        data = {
-            'loggerName': record.name,
-            'ascTime': record.asctime,
-            'fileName': record.filename,
-            'logRecordCreationTime': record.created,
-            'functionName': record.funcName,
-            'levelNo': record.levelno,
-            'lineNo': record.lineno,
-            'time': record.msecs,
-            'levelName': record.levelname,
-            'message': record.message
-        }
+        data = self.formatter.format(record)
         try:
             payload = json.dumps(data)
             session.post(self.url, data=payload, background_callback=bg_cb)
