@@ -1,6 +1,6 @@
 from setuptools import setup
 
-dependencies = ['PyYAML>3', 'parse', 'mimeparse']
+dependencies = ['requests_futures']
 
 setup(
     name="twyla.logging",
@@ -10,7 +10,7 @@ setup(
     description=("Twyla Logging Utilities"),
     install_requires=dependencies,
     extras_require={
-        'test': ['pytest', 'pylint'],
+        'test': ['pytest'],
     },
     packages=["twyla.logging"],
     entry_points={},
