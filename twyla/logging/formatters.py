@@ -1,4 +1,5 @@
 from logging import Formatter, PercentStyle, LogRecord
+import traceback
 
 DEFAULT_PROPERTIES = list(LogRecord('', '', '', '', '', '', '', '').__dict__.keys())
 # The logging module sucks big time. when Formatter.getMessage is
@@ -9,8 +10,6 @@ DEFAULT_PROPERTIES = list(LogRecord('', '', '', '', '', '', '', '').__dict__.key
 DEFAULT_PROPERTIES.extend(['message', 'asctime'])
 
 class LogglyJSONFormatter(Formatter):
-
-
 
     def __init__(self, *args, **kwargs):
         super().__init__(self, *args, **kwargs)
@@ -29,10 +28,10 @@ class LogglyJSONFormatter(Formatter):
         # Need to do this to set time and exception fields on the
         # record. Python's logging module just loves state
         super().format(record)
+        message = record.getMessage()
         if record.exc_info:
-            message = '\n'.join(traceback.format_exception(*record.exc_info))
-        else:
-            message = record.getMessage()
+            message = '\n'.join(
+                [message, ''.join(traceback.format_exception(*record.exc_info))])
 
         data = {
             'loggerName': record.name,
