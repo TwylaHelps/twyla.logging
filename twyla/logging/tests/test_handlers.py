@@ -24,7 +24,7 @@ class LogglyHTTPSHandlerTestCase(unittest.TestCase):
         _, (url,), kwargs = mock_session.post.mock_calls[0]
         assert url == 'https://logs-01.loggly.com/inputs/abcd-123/tag/python'
         data = json.loads(kwargs['data'])
-        assert data.pop('ascTime') == record.asctime
+        assert data.pop('timestamp') == record.asctime
         assert data.pop('time') == record.msecs
         assert data.pop('logRecordCreationTime') == record.created
         assert data == {'loggerName': 'twyla.logging',

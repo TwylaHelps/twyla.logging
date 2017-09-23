@@ -6,6 +6,7 @@ class LogglyJSONFormatter(Formatter):
         super().__init__(self, *args, **kwargs)
         self._style = PercentStyle(PercentStyle.asctime_format)
 
+
     def format(self, record):
         # Need to do this to set time and exception fields on the
         # record. Python's logging module just loves state
@@ -17,7 +18,7 @@ class LogglyJSONFormatter(Formatter):
 
         data = {
             'loggerName': record.name,
-            'ascTime': record.asctime,
+            'timestamp': record.asctime,
             'fileName': record.filename,
             'logRecordCreationTime': record.created,
             'functionName': record.funcName,
