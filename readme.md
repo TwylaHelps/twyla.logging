@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/TwylaHelps/twyla.logging.svg?branch=master)](https://travis-ci.org/TwylaHelps/twyla.logging)
 
+[![PyPI version](https://badge.fury.io/py/twyla.logging.svg)](https://badge.fury.io/py/twyla.logging)
+
 Various logging utilities.
 
 Sample dict config for the Loggly handler:
