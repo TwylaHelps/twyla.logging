@@ -34,3 +34,29 @@ class LogglyHTTPSHandlerTestCase(unittest.TestCase):
                         'lineNo': 11,
                         'levelName': 'INFO',
                         'message': 'The text message'}
+
+
+    @mock.patch('twyla.logging.handlers.session')
+    def test_extra_attributes(self, mock_session):
+        handler = handlers.LogglyHTTPSHandler('abcd-123', 'python')
+        record = LogRecord('twyla.logging', 20, '/path/to/logging.py',
+                           11, 'The text message', args=[],
+                           exc_info=None, func='dostuff')
+        record.an_attribute = 555
+        record.other_attribute = 'Hello there'
+        handler.emit(record)
+        assert mock_session.post.call_count == 1
+        _, _, kwargs = mock_session.post.mock_calls[0]
+        data = json.loads(kwargs['data'])
+        assert data.pop('extra') == {'an_attribute': 555,
+                                     'other_attribute': 'Hello there'}
+        assert data.pop('timestamp') == record.asctime
+        assert data.pop('time') == record.msecs
+        assert data.pop('logRecordCreationTime') == record.created
+        assert data == {'loggerName': 'twyla.logging',
+                        'fileName': 'logging.py',
+                        'functionName': 'dostuff',
+                        'levelNo': 20,
+                        'lineNo': 11,
+                        'levelName': 'INFO',
+                        'message': 'The text message'}
