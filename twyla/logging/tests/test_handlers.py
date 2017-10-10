@@ -89,3 +89,15 @@ class LogglyHTTPSHandlerTestCase(unittest.TestCase):
                         'levelNo': ERROR,
                         'lineNo': 11,
                         'levelName': 'ERROR'}
+
+
+    @mock.patch('twyla.logging.handlers.session')
+    def test_binary_data(self, mock_session):
+        handler = handlers.LogglyHTTPSHandler('abcd-123', 'python')
+        record = LogRecord('twyla.logging', ERROR, '/path/to/logging.py',
+                           11, 'The text message', args=[],
+                           exc_info=None, func='dostuff')
+        record.binary_attribute = b'Binary string'
+        handler.emit(record)
+        assert mock_session.post.call_count == 1
+        _, _, kwargs = mock_session.post.mock_calls[0]
