@@ -1,3 +1,4 @@
+import os
 import logging
 import logging.handlers
 import json
@@ -20,8 +21,11 @@ def bg_cb(sess, resp):
 
 class LogglyHTTPSHandler(logging.Handler):
 
-    def __init__(self, token, tag, formatter=None):
+    def __init__(self, token, tag=None, formatter=None, tag_env_var_name=None):
         logging.Handler.__init__(self)
+        if tag is None:
+            assert tag_env_var_name is not None, "One of tag or tag_env_var_name should be specified"
+            tag = os.environ.get(tag_env_var_name)
         self.url = URL_BASE.format(**locals())
         self.formatter = formatter or LogglyJSONFormatter()
 

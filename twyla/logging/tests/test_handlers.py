@@ -3,6 +3,7 @@ import unittest
 from unittest import mock
 import json
 
+import pytest
 from logging import LogRecord, INFO, ERROR
 
 from twyla.logging import handlers
@@ -89,3 +90,16 @@ class LogglyHTTPSHandlerTestCase(unittest.TestCase):
                         'levelNo': ERROR,
                         'lineNo': 11,
                         'levelName': 'ERROR'}
+
+
+    def test_error_on_invalid_tag_specification(self):
+        with pytest.raises(AssertionError) as context:
+            handlers.LogglyHTTPSHandler('12345')
+        msg = str(context.value)
+        assert msg == "One of tag or tag_env_var_name should be specified"
+
+
+    @mock.patch('twyla.logging.handlers.os.environ', new={'AN_ENV_VAR':'logging_tag'})
+    def test_tag_from_env_var(self):
+        handler = handlers.LogglyHTTPSHandler('12345', tag_env_var_name='AN_ENV_VAR')
+        assert handler.url == 'https://logs-01.loggly.com/inputs/12345/tag/logging_tag'
