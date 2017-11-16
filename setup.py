@@ -4,7 +4,7 @@ dependencies = ['requests_futures']
 
 setup(
     name="twyla.logging",
-    version="0.0.3",
+    version="0.0.4",
     author="Twyla Devs",
     author_email="dev@twylahelps.com",
     description=("Twyla Logging Utilities"),
