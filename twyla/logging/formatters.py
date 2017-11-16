@@ -9,19 +9,20 @@ DEFAULT_PROPERTIES = list(LogRecord('', '', '', '', '', '', '', '').__dict__.key
 # 1387.
 DEFAULT_PROPERTIES.extend(['message', 'asctime'])
 
+def get_extras(record):
+    if len(DEFAULT_PROPERTIES) == len(record.__dict__):
+        return None
+    extras = set(record.__dict__).difference(set(DEFAULT_PROPERTIES))
+    if not extras:
+        return None
+    return {key: getattr(record, key) for key in extras}
+
+
 class LogglyJSONFormatter(Formatter):
 
     def __init__(self, *args, **kwargs):
         super().__init__(self, *args, **kwargs)
         self._style = PercentStyle(PercentStyle.asctime_format)
-
-    def get_extras(self, record):
-        if len(DEFAULT_PROPERTIES) == len(record.__dict__):
-            return None
-        extras = set(record.__dict__).difference(set(DEFAULT_PROPERTIES))
-        if not extras:
-            return None
-        return {key: getattr(record, key) for key in extras}
 
 
     def format(self, record):
@@ -45,7 +46,20 @@ class LogglyJSONFormatter(Formatter):
             'levelName': record.levelname,
             'message': message
         }
-        extras = self.get_extras(record)
+        extras = get_extras(record)
         if extras:
             data['extra'] = extras
         return data
+
+
+class ExtraDataFormatter(Formatter):
+
+    def format(self, record):
+        normal_format = super().format(record)
+        extras = get_extras(record)
+        if not extras:
+            return normal_format
+        parts = ['{}: {}'.format(key, extras[key])
+                 for key in sorted(extras.keys())]
+        record.msg = '{} {}'.format(record.msg, ' '.join(parts))
+        return super().format(record)
