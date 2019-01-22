@@ -14,7 +14,7 @@ session = FuturesSession()
 
 URL_BASE =  'https://logs-01.loggly.com/inputs/{token}/tag/{tag}'
 
-def bg_cb(sess, resp):
+def bg_cb(resp, *args, **kwargs):
     """ Don't do anything with the response """
     pass
 
@@ -34,7 +34,7 @@ class LogglyHTTPSHandler(logging.Handler):
         data = self.formatter.format(record)
         try:
             payload = json.dumps(data)
-            session.post(self.url, data=payload, background_callback=bg_cb)
+            session.post(self.url, data=payload, hooks={"response": bg_cb})
         except (KeyboardInterrupt, SystemExit):
             raise
         except:
